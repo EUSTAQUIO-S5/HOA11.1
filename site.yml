@@ -2,21 +2,34 @@
 - hosts: all
   become: true
   tasks:
-    - name: Install updates (Ubuntu)
-      apt:
-        upgrade: dist
-        update_cache: yes
-      when: ansible_distribution == "Ubuntu"
 
-    - name: Install Docker on Ubuntu
-      apt:
-        name: docker.io
-        state: present
-        update_cache: yes
-      when: ansible_distribution == "Ubuntu"
 
-    - name: Start Docker
-      service:
-        name: docker
-        state: restarted
+  - name: Update (Ubuntu)
+    apt:
+      state: latest
+      update_cache: yes
+    changed_when: false
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Installing Docker (Ubuntu)
+    apt:
+      name: docker.io
+      state: present
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Start Docker
+    service:
+      name: docker
+      state: restarted
+
+  - name: Add docker to Group
+    ansible.builtin.group:
+      name: marco-docker
+      state: present
+
+  - name: Copy Docker file
+    copy:
+      src: dockerfile
+      dest: /marco/docker/
 
